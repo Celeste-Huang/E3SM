@@ -2920,6 +2920,13 @@
         <arg name="num_tasks"> -n {{ total_tasks }} -N {{ tasks_per_node }}</arg>
       </arguments>
     </mpirun>
+    <mpirun mpilib="spectrum-mpi" compiler="pgigpu" >
+      <executable>/gpfs/alpine/world-shared/cli115/mpirun.summit</executable>
+      <arguments>
+        <arg name="num_tasks"> -n {{ total_tasks }} -N {{ tasks_per_node }}</arg>
+        <arg name="gpu"> -gpu </arg>
+      </arguments>
+    </mpirun>
     <module_system type="module" allow_error="true">
       <!-- list of init_path elements, one per supported language e.g. sh, perl, python-->
       <init_path lang="sh">/sw/summit/lmod/7.7.10/rhel7.3_gnu4.8.5/lmod/lmod/init/sh</init_path>
@@ -2949,7 +2956,7 @@
         <command name="load">pgi/19.9</command>
       </modules>
       <modules compiler="pgigpu">
-        <command name="load">pgi/19.4</command>
+        <command name="load">pgi/19.9</command>
         <command name="load">cuda</command>
       </modules>
       <modules compiler="ibm">
@@ -2999,27 +3006,33 @@
      -r	(hyphen-hyphen)rs_per_host	Number of resource sets per host
      -->
 
-    <!-- Default -->
-    <environment_variables>
-      <env name="COMPILER">$COMPILER</env>
-      <env name="MPILIB">$MPILIB</env>
-      <env name="NETCDF_C_PATH">$ENV{OLCF_NETCDF_ROOT}</env>
-      <env name="NETCDF_FORTRAN_PATH">$ENV{OLCF_NETCDF_FORTRAN_ROOT}</env>
-      <env name="NETCDF_PATH">$ENV{OLCF_NETCDF_FORTRAN_ROOT}</env>
-      <env name="NETCDFF">$ENV{OLCF_NETCDF_FORTRAN_ROOT}</env>
-      <env name="ESSL_PATH">$ENV{OLCF_ESSL_ROOT}</env>
-      <env name="NETLIB_LAPACK_PATH">$ENV{OLCF_NETLIB_LAPACK_ROOT}</env>
-    </environment_variables>
-    <environment_variables SMP_PRESENT="TRUE">
-      <env name="OMP_STACKSIZE">128M</env>
-    </environment_variables>
-    <environment_variables mpilib="!mpi-serial">
-      <env name="HDF5_PATH">$ENV{OLCF_HDF5_ROOT}</env>
-      <env name="PNETCDF_PATH">$ENV{OLCF_PARALLEL_NETCDF_ROOT}</env>
-    </environment_variables>
-    <environment_variables mpilib="!mpi-serial" compiler="pgiacc">
-      <env name="OMPI_CXX">$SRCROOT/externals/kokkos/bin/nvcc_wrapper</env>
-    </environment_variables>
+  <!-- Default -->
+  <environment_variables>
+    <env name="COMPILER">$COMPILER</env>
+    <env name="MPILIB">$MPILIB</env>
+    <env name="OMP_STACKSIZE">128M</env>
+    <env name="NETCDF_C_PATH">$ENV{OLCF_NETCDF_ROOT}</env>
+    <env name="NETCDF_FORTRAN_PATH">$ENV{OLCF_NETCDF_FORTRAN_ROOT}</env>
+    <env name="NETCDF_PATH">$ENV{OLCF_NETCDF_FORTRAN_ROOT}</env>
+    <env name="NETCDFF">$ENV{OLCF_NETCDF_FORTRAN_ROOT}</env>
+    <env name="ESSL_PATH">$ENV{OLCF_ESSL_ROOT}</env>
+    <env name="NETLIB_LAPACK_PATH">$ENV{OLCF_NETLIB_LAPACK_ROOT}</env>
+    <env name="PGI_ACC_POOL_ALLOC">0</env>
+  </environment_variables>
+  <environment_variables compiler="ibm">
+    <env name="OMPI_CC">xlc_r</env>
+    <env name="OMPI_FC">xlf2008_r</env>
+    <env name="OMPI_CXX">xlc++_r</env>
+  </environment_variables>
+  <environment_variables SMP_PRESENT="TRUE">
+    <env name="OMP_NUM_THREADS">$ENV{OMP_NUM_THREADS}</env>
+  </environment_variables>
+  <environment_variables mpilib="!mpi-serial">
+    <env name="HDF5_PATH">$ENV{OLCF_HDF5_ROOT}</env>
+    <!-- OMPI_MCA_io env is required due to OOM errors -->
+    <env name="GPFSMPIO_COMM">1</env>
+    <env name="PNETCDF_PATH">$ENV{OLCF_PARALLEL_NETCDF_ROOT}</env>
+  </environment_variables>
   </machine>
 
   <machine MACH="modex">
